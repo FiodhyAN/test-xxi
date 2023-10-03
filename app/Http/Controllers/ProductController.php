@@ -10,4 +10,9 @@ class ProductController extends Controller
     {
         return view('admin.product');
     }
+
+    public function addProduct(Request $request)
+    {
+        return $request;
+    }
 }
