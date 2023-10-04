@@ -412,6 +412,37 @@
                 }
             });
         })
+
+        $('#checkoutForm').on('submit', function(e) {
+            e.preventDefault();
+
+            var data = $(this).serialize()
+
+            $.ajax({
+                url: '/checkout',
+                type: 'POST',
+                data: data,
+                success: function(data) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: data.message
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "/";
+                        }
+                    })
+                },
+                error: function(data) {
+                    let text = data.responseJSON.message;
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: text
+                    });
+                }
+            })
+        })
     </script>
 </body>
 

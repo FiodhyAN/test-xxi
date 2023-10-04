@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreign('product_id')->references('id')->on('products');
             $table->unsignedBigInteger('transaksi_id');
             $table->foreign('transaksi_id')->references('id')->on('transaksis');
+            $table->enum('ukuran', ['S', 'M', 'L']);
             $table->integer('jumlah_product');
             $table->integer('harga_product');
             $table->timestamps();

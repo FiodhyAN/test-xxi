@@ -3,6 +3,7 @@
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\TransaksiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,7 +33,11 @@ Route::post('/addProduct', [ProductController::class, 'addProduct'])->middleware
 Route::delete('/deleteProduct', [ProductController::class, 'deleteProduct'])->middleware('admin');
 Route::put('/updateProduct', [ProductController::class, 'updateProduct'])->middleware('admin');
 
+Route::get('/pesanan', [TransaksiController::class, 'index'])->middleware('admin');
+Route::get('/getTransaksiById', [TransaksiController::class, 'getTransaksiById'])->middleware('admin');
+
 Route::get('/menu', [MenuController::class, 'index']);
 Route::post('/addToCart', [MenuController::class, 'addToCart']);
 Route::get('/getCart', [MenuController::class, 'getCart']);
 Route::post('/deleteCart', [MenuController::class, 'deleteCart']);
+Route::post('/checkout', [MenuController::class, 'checkout']);

@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProdukTransaksi;
+use App\Models\Transaksi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class MenuController extends Controller
 {
@@ -72,5 +75,49 @@ class MenuController extends Controller
         session()->put('cart', $cart);
 
         return response()->json(session()->get('cart'));
+    }
+
+    public function checkout(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama_pelanggan' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 400);
+        }
+
+        if (!session()->has('cart')) {
+            return response()->json(['message' => 'Keranjang kosong!'], 400);
+        }
+
+        $cart = session()->get('cart');
+        $total = 0;
+        $quantity = 0;
+        foreach ($cart as $item) {
+            $total += $item->harga;
+            $quantity += $item->quantity;
+        }
+
+        $transaksi = Transaksi::create([
+            'no_transaksi' => 'TRX' . time(),
+            'nama_pelanggan' => $request->nama_pelanggan,
+            'jumlah' => $quantity,
+            'harga_total' => $total,
+        ]);
+
+        foreach ($cart as $item) {
+            ProdukTransaksi::create([
+                'product_id' => $item->id,
+                'transaksi_id' => $transaksi->id,
+                'ukuran' => $item->ukuran,
+                'jumlah_product' => $item->quantity,
+                'harga_product' => $item->harga,
+            ]);
+        }
+
+        session()->forget('cart');
+
+        return response()->json(['message' => 'Checkout berhasil!']);
     }
 }
