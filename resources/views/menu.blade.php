@@ -7,6 +7,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="Free Website Template" name="keywords">
     <meta content="Free Website Template" name="description">
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
 
 
     <!-- Google Font -->
@@ -27,49 +28,88 @@
 </head>
 
 <body>
-    <div class="modal" id="productModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <img src="" alt="" class="w-100" id="productImage">
-                        </div>
-                        <div class="col-md-6">
-                            <h4 class="text-primary">Harga</h4>
-                            <p id="harga_produk"></p>
-                            <h4 class="text-primary">Jumlah</h4>
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <button class="btn btn-outline-primary" type="button" id="minusBtn"><i
-                                            class="fa fa-minus"></i></button>
-                                </div>
-                                <input type="text" class="form-control text-center" value="1" id="qty"
-                                    readonly>
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-primary" type="button" id="plusBtn"><i
-                                            class="fa fa-plus"></i></button>
+    <form action="/addToCart" method="POST" id="addToCart">
+        @csrf
+        <input type="hidden" id="id_product" name="id">
+        <div class="modal" id="productModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <img src="" alt="" class="w-100" id="productImage">
+                            </div>
+                            <div class="col-md-6">
+                                <h4 class="text-primary">Harga</h4>
+                                <input type="number" id="harga_produk" class="form-control mb-3" readonly
+                                    name="harga_produk">
+                                <h4 class="text-primary">Ukuran</h4>
+                                <select name="ukuran" id="ukuran" class="form-control mb-3">
+                                    <option value="S">S</option>
+                                    <option value="M">M (+ Rp. 5.000)</option>
+                                    <option value="L">L (+ Rp. 10.000)</option>
+                                </select>
+                                <h4 class="text-primary">Jumlah</h4>
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <button class="btn btn-outline-primary" type="button" id="minusBtn"><i
+                                                class="fa fa-minus"></i></button>
+                                    </div>
+                                    <input type="text" class="form-control text-center" value="1" id="qty"
+                                        readonly name="jumlah">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-primary" type="button" id="plusBtn"><i
+                                                class="fa fa-plus"></i></button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary">Add To Cart</button>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Add To Cart</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
+
+    <form action="/checkout" method="POST" id="checkoutForm">
+        @csrf
+        <div class="modal" id="cartModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cart</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <label for="nama_pelanggan" class="text-primary">Nama Pelanggan</label>
+                        <input type="text" name="nama_pelanggan" id="nama_pelanggan" class="form-control mb-3"
+                            placeholder="Masukkan Nama Anda..." required>
+                        <div id="modal_body_cart">
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Checkout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
     <!-- Navbar Start -->
     <div class="container-fluid p-0 nav-bar">
         <nav class="navbar navbar-expand-lg bg-none navbar-dark py-3">
-            <a href="index.html" class="navbar-brand px-lg-4 m-0">
+            <a href="#" class="navbar-brand px-lg-4 m-0">
                 <h1 class="m-0 display-4 text-uppercase text-white">Cafe Bahagia</h1>
             </a>
         </nav>
@@ -142,7 +182,8 @@
             <!-- Checkout button -->
             <div class="row mb-5">
                 <div class="col-12 text-center">
-                    <button class="btn btn-primary btn-lg">Checkout ></button>
+                    <button class="btn btn-primary btn-lg" id="checkoutBtn" data-toggle="modal"
+                        data-target="#cartModal">Checkout</button>
                 </div>
             </div>
         </div>
@@ -173,6 +214,9 @@
     <!-- Template Javascript -->
     <script src="/assets/js/mainMenu.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
         $('.productBtn').on('click', function() {
             var id = $(this).data('id');
@@ -184,24 +228,76 @@
                     id: id
                 },
                 success: function(data) {
-                    $('.modal-title').html(data.product.nama_produk);
-                    $('#productImage').attr('src', data.product.foto_produk);
-                    $('#harga_produk').html('Rp. ' + data.product.harga);
+                    function updatePrice() {
+                        var qty = parseInt($('#qty').val(), 10);
+                        var ukuran = $('#ukuran').val();
+                        var price_satuan = data.product.harga;
+
+                        if (ukuran === 'M') {
+                            price_satuan += 5000;
+                        } else if (ukuran === 'L') {
+                            price_satuan += 10000;
+                        }
+
+                        var price = price_satuan * qty;
+                        $('#harga_produk').val(price);
+                    }
+
                     $('#qty').val(1);
+                    updatePrice();
+
                     $('#plusBtn').off('click').on('click', function() {
-                        var qty = $('#qty').val();
+                        var qty = parseInt($('#qty').val(), 10);
                         qty++;
                         $('#qty').val(qty);
-                        $('#harga_produk').html('Rp. ' + data.product.harga * qty);
+                        updatePrice();
                     });
 
                     $('#minusBtn').off('click').on('click', function() {
-                        var qty = $('#qty').val();
-                        qty--;
-                        if (qty < 1) {
-                            qty = 1;
-                        }
+                        var qty = parseInt($('#qty').val(), 10);
+                        qty = Math.max(qty - 1, 1);
                         $('#qty').val(qty);
+                        updatePrice();
+                    });
+
+                    $('#ukuran').on('change', function() {
+                        updatePrice();
+                    });
+
+                    $('.modal-title').html(data.product.nama_produk);
+                    $('#productImage').attr('src', data.product.foto_produk);
+                    $('#id_product').val(data.product.id);
+                },
+                error: function(data) {
+                    let text = data.responseJSON.message;
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: text
+                    });
+                }
+            });
+        })
+
+        $('#productModal').on('hidden.bs.modal', function() {
+            $('#ukuran').val('S');
+            $('#ukuran').trigger('change');
+        })
+
+        $('#addToCart').on('submit', function(e) {
+            e.preventDefault();
+            var data = $(this).serialize();
+
+            $.ajax({
+                url: '/addToCart',
+                type: 'POST',
+                data: data,
+                success: function(data) {
+                    $('#productModal').modal('hide');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: data.message
                     });
                 },
                 error: function(data) {
@@ -211,6 +307,108 @@
                         title: 'Gagal',
                         text: text
                     });
+                }
+            });
+        });
+
+        $('#checkoutBtn').on('click', function() {
+            $.ajax({
+                url: '/getCart',
+                type: 'GET',
+                success: function(data) {
+                    $('#modal_body_cart').html('');
+                    var total_harga = 0;
+                    const formatter = new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR'
+                    });
+                    data.forEach(function(item) {
+                        $('#modal_body_cart').append(`
+                            <div class="row align-items-center mb-5">
+                                <div class="col-4">
+                                    <img class="w-100 rounded-circle mb-3 mb-sm-0" src="${item.foto_produk}" alt="">
+                                </div>
+                                <div class="col-5">
+                                    <h4>${item.nama_produk}</h4>
+                                    <p class="m-0">${item.quantity} x ${item.ukuran}</p>
+                                    <p class="m-0">${formatter.format(item.harga)}</p>
+                                </div>
+                                <div class="col-3">
+                                    <button type="button" class="btn btn-danger btn-sm btn-block deleteCartBtn" data-id="${item.id}" data-ukuran="${item.ukuran}"><i class="fa fa-trash"></i></button>
+                                </div>
+                            </div>
+                        `);
+                        var hargaNumber = parseInt(item.harga);
+                        total_harga += hargaNumber;
+                    });
+                    console.log(total_harga)
+                    $('#modal_body_cart').append(`
+                        <div class="row align-items-center mb-5">
+                            <div class="col-12">
+                                <h4 class="text-center">Total Harga: ${formatter.format(total_harga)}</h4>
+                            </div>
+                        </div>
+                    `);
+
+                },
+                error: function(data) {
+                    console.log(data)
+                }
+            });
+        })
+
+        $('#cartModal').on('click', '.deleteCartBtn', function() {
+            var id = $(this).data('id');
+            var ukuran = $(this).data('ukuran');
+
+            $.ajax({
+                url: '/deleteCart',
+                type: 'POST',
+                data: {
+                    id: id,
+                    ukuran: ukuran
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+                    $('#modal_body_cart').html('');
+                    var total_harga = 0;
+                    const formatter = new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR'
+                    });
+                    data.forEach(function(item) {
+
+                        $('#modal_body_cart').append(`
+                            <div class="row align-items-center mb-5">
+                                <div class="col-4">
+                                    <img class="w-100 rounded-circle mb-3 mb-sm-0" src="${item.foto_produk}" alt="">
+                                </div>
+                                <div class="col-5">
+                                    <h4>${item.nama_produk}</h4>
+                                    <p class="m-0">${item.quantity} x ${item.ukuran}</p>
+                                    <p class="m-0">${formatter.format(item.harga)}</p>
+                                </div>
+                                <div class="col-3">
+                                    <button type="button" class="btn btn-danger btn-sm btn-block deleteCartBtn" data-id="${item.id}" data-ukuran="${item.ukuran}"><i class="fa fa-trash"></i></button>
+                                </div>
+                            </div>
+                        `);
+                        var hargaNumber = parseInt(item.harga);
+                        total_harga += hargaNumber;
+                    });
+
+                    $('#modal_body_cart').append(`
+                        <div class="row align-items-center mb-5">
+                            <div class="col-12">
+                                <h4 class="text-center">Total Harga: ${formatter.format(total_harga)}</h4>
+                            </div>
+                        </div>
+                    `);
+                },
+                error: function(data) {
+                    console.log(data)
                 }
             });
         })
